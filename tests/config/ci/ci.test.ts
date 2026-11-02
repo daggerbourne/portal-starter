@@ -636,7 +636,13 @@ test("workflow steps", () => {
   const plan = stepByName(steps, "plan");
   assert.equal(plan.id, "plan");
   assert.deepEqual(plan.env, { EVENT_NAME: "${{ github.event_name }}", EVENT_BEFORE: "${{ github.event.before }}", PR_BASE: "${{ github.event.pull_request.base.sha }}", HEAD_SHA: "${{ github.sha }}" });
-  assert.deepEqual(stepByName(steps, "migrate").env, { DATABASE_URL: "postgres://postgres@localhost:5432/portal-starter" });
+  assert.deepEqual(stepByName(steps, "migrate").env, { DATABASE_URL: "postgres://postgres@localhost:5432/app" });
+  for (const name of ["test", "migrate"]) {
+    const env = stepByName(steps, name).env;
+    assert.ok(isYamlRecord(env), name);
+    const url = new URL(String(env.DATABASE_URL));
+    assert.equal(url.pathname, "/app", `${name} must use the database the postgres service creates`);
+  }
   assert.deepEqual(stepByName(steps, "test").env, stepByName(steps, "migrate").env);
 });
 

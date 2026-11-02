@@ -68,7 +68,7 @@ jobs:
         if: "success() && steps.plan.outputs.depth == 'full'"
         run: npm test
         env:
-          DATABASE_URL: "postgres://postgres@localhost:5432/portal-starter"
+          DATABASE_URL: "postgres://postgres@localhost:5432/app"
       - name: build
         if: "success() && steps.plan.outputs.depth == 'full'"
         run: npm run build
@@ -76,4 +76,4 @@ jobs:
         if: "success() && steps.plan.outputs.depth == 'full' && steps.plan.outputs.run_migrate == 'true'"
         run: npm run migrate
         env:
-          DATABASE_URL: "postgres://postgres@localhost:5432/portal-starter"
+          DATABASE_URL: "postgres://postgres@localhost:5432/app"

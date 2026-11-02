@@ -15,6 +15,8 @@ Everything a new app normally spends its first release on is already here and te
 2. Work through the checklist in [`program/setup.md`](program/setup.md): GitHub, Netlify, Neon, Entra, Cursor, and the Grok Bots.
 3. Paste [`program/kickoff.md`](program/kickoff.md) into the new Coordinator Bot. Its first job is R0, which proves the foundation on your services and turns your product brief into the R1 plan.
 
+In this template repository itself, the `db-dev-migrate` workflow fails on purpose: there is no Neon environment here, and the workflow refuses to run without one. It passes in an app once [`program/setup.md`](program/setup.md) step 3 is done.
+
 ## What's built
 
 | Area | Where | What it does |
