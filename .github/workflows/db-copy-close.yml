@@ -1,0 +1,14 @@
+name: db-copy-close
+on: {pull_request_target: {types: [closed]}}
+permissions: {contents: read}
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: neon
+    env: {FORK: "${{ github.event.pull_request.head.repo.fork }}", PR_NUMBER: "${{ github.event.pull_request.number }}", HEAD_REF: "${{ github.event.pull_request.head.ref }}", NEON_API_KEY: "${{ secrets.NEON_API_KEY }}", NETLIFY_AUTH_TOKEN: "${{ secrets.NETLIFY_AUTH_TOKEN }}", NEON_PROJECT_ID: "${{ vars.NEON_PROJECT_ID }}", NETLIFY_SITE_ID: "${{ vars.NETLIFY_SITE_ID }}"}
+    steps:
+      - {uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, with: {ref: main, persist-credentials: false}}
+      - {uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020, with: {node-version-file: .nvmrc}}
+      - {run: npm ci}
+      - {run: npx tsx .github/db-copies/run.ts close}

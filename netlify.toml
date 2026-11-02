@@ -1,0 +1,10 @@
+[build]
+command = "npm run build"
+publish = "dist"
+ignore = 'base="$CACHED_COMMIT_REF"; head="$COMMIT_REF"; if ! git rev-parse --verify --quiet "${base}^{commit}" >/dev/null 2>&1 || [ "$base" = "$head" ]; then head=$(git rev-parse --verify --quiet "${COMMIT_REF}^{commit}") || exit 1; upstream=; for ref in origin/main main; do git rev-parse --verify --quiet "${ref}^{commit}" >/dev/null 2>&1 && upstream=$ref && break; done; [ -n "$upstream" ] || exit 1; base=$(git merge-base "$upstream" "$head") || exit 1; [ "$base" != "$head" ] || exit 1; fi; paths=$(git diff --name-only --no-renames "$base" "$head" 2>/dev/null) || exit 1; [ -n "$paths" ] || paths=$(git log --no-renames --name-only --pretty=format: "${base}..${head}" 2>/dev/null) || exit 1; [ -n "$paths" ] || exit 1; printf "%s\n" "$paths" | while IFS= read -r path; do case "$path" in ""|*.md) ;; *) exit 1 ;; esac; done || exit 1; exit 0'
+
+[build.environment]
+NODE_VERSION = "22"
+
+[functions]
+directory = "server/functions"

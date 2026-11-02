@@ -1,0 +1,43 @@
+name: scope
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scope-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - &checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - &node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BODY: ${{ github.event.pull_request.body || '' }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: node .github/scope/check.js scope
+  red-first:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - *checkout
+      - *node
+      - name: red-first
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node .github/scope/check.js red-first

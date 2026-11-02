@@ -1,0 +1,9 @@
+name: bad
+on: { pull_request: { types: [opened] } }
+permissions:
+  contents: read
+jobs:
+  bad:
+    runs-on: ubuntu-latest
+    steps:
+      - run: node --version

@@ -1,0 +1,4 @@
+export const note = "fetch(";
+// fetch(
+/* import http from "node:http"; */
+export const ready = true;

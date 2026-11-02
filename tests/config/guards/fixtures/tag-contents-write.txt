@@ -1,0 +1,9 @@
+name: bad
+on: push
+permissions:
+  contents: !!str write
+jobs:
+  bad:
+    runs-on: ubuntu-latest
+    steps:
+      - run: node --version

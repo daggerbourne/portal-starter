@@ -1,0 +1,12 @@
+# GitHub requires the Owner's approval on any PR that changes these.
+# GitHub reads this file from main, so a PR can't remove itself from it.
+# See program/shipping.md, "Rules on main".
+
+/.github/                      @daggerbourne
+/AGENTS.md                     @daggerbourne
+/program/standing-orders.md    @daggerbourne
+/program/decisions.md          @daggerbourne
+/program/lanes.yml             @daggerbourne
+/program/roles.md              @daggerbourne
+/program/shipping.md           @daggerbourne
+/specs/domain.md               @daggerbourne

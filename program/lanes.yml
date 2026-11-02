@@ -1,0 +1,149 @@
+# The one lane map. CI (scope and verdict checks) and people read this file.
+# Do not copy these lists into other docs. Link here instead.
+#
+# How CI uses it:
+# - A PR's lane comes from the paths it changes, not from its branch name.
+#   Every changed path must match exactly one lane, and all of them the same lane.
+#   A file at the repository root that no lane lists counts as `config`. A path
+#   in a folder no lane lists (such as Netlify's default `netlify/functions/`)
+#   fails the check; functions live in `server/functions/`.
+# - A PR that spans lanes fails the scope check unless the Coordinator adds the
+#   `cross-lane` label and the PR body says why.
+# - Required verdicts scale to risk (pstack: verification sized to the unit):
+#   QA when any changed path matches `qa_paths`, CTO when any matches
+#   `risk_paths`, Designer when any matches `design_paths` (the ui lane too),
+#   plus any role the Coordinator adds with a `verify:<role>` label.
+#   A PR with no required role ships on green CI plus the owner's receipts,
+#   which the Coordinator checks before queueing it.
+# - `owner` is a job title for the cloud agent that writes the PR. `run_by` is
+#   who launches that agent. A verifier is always a different, fresh agent, so
+#   a CTO-titled owner and a CTO-titled verifier never share an agent.
+# Globs: `**` matches across folders, `*` within one folder.
+
+lanes:
+  core:
+    owner: Builder
+    run_by: Coordinator
+    branch_prefix: core/
+    paths:
+      - "contracts/**"
+      - "core/**"
+      - "server/**"
+      - "db/**"
+      - "scripts/**"
+      - "tests/core/**"
+      - "tests/server/**"
+      - "tests/db/**"
+    verdicts: []
+
+  adapters:
+    owner: Integrations
+    run_by: Coordinator
+    branch_prefix: int/
+    paths:
+      - "adapters/**"
+      - "tests/adapters/**"
+    verdicts: []
+
+  # A ui unit ships pure renders: functions that take data and return markup,
+  # with no routes, database, or adapters. Each render ships a <name>.gallery.ts
+  # file beside it with sample data, so the preview's render gallery shows it.
+  # A separate core unit mounts it on a route, so a page never needs one PR in
+  # two lanes.
+  ui:
+    owner: Designer
+    run_by: Designer Bot
+    branch_prefix: ui/
+    paths:
+      - "ui/**"
+      - "design/**"
+      - "tests/ui/**"
+    verdicts: []
+
+  onboarding:
+    owner: Onboarder
+    run_by: Coordinator
+    branch_prefix: onb/
+    paths:
+      - "onboarding/**"
+      - "tests/onboarding/**"
+    verdicts: []
+
+  config:
+    owner: CTO
+    run_by: Coordinator
+    branch_prefix: cfg/
+    paths:
+      - ".github/**"
+      - ".cursor/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "eslint.config.js"
+      - "netlify.toml"
+      - ".gitignore"
+      - "tests/config/**"
+    verdicts: []
+
+  program:
+    owner: Coordinator
+    run_by: Coordinator
+    branch_prefix: spec/
+    paths:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - "program/**"
+      - "specs/**"
+    # Docs need no verifier. A change to program/standing-orders.md also
+    # needs a dated entry in program/decisions.md approving it. GitHub itself
+    # requires the Owner's approval on the files in .github/CODEOWNERS.
+    verdicts: []
+
+# A QA verifier agent checks any PR that changes the routes and data users
+# and staff use. A screen gets QA in its mount PR, where it first works on a
+# real route; its ui PR gets the Designer verifier instead.
+qa_paths:
+  - "server/**"
+  - "db/**"
+
+# A CTO verifier agent checks any PR that touches these, whatever its lane.
+risk_paths:
+  - "contracts/**"
+  - "db/**"
+  - "adapters/**"
+  - "server/auth/**"
+  - "core/money/**"
+  - ".github/**"
+  - "package.json"
+  - "package-lock.json"
+  - "netlify.toml"
+
+# A fresh Designer verifier agent, launched by the Coordinator, checks any PR
+# that touches these, in any lane. The Designer Bot's own review of its
+# agent's work is not a verdict. A mount PR only wires a verified render to a
+# route, so it gets QA, not a second design check.
+design_paths:
+  - "ui/**"
+  - "design/**"
+
+# PR size (standing order 23). The scope check counts lines with these rules,
+# so the test exemption can't be used as a loophole.
+size:
+  app_lines_max: 400        # everything not counted as tests, fixtures, or docs
+  test_lines_max: 800       # tests and fixtures have their own cap
+  docs_lines_max: 800       # Markdown has its own cap, so specs aren't held to 400
+  # Only these count as tests or fixtures. A *.test.ts file anywhere else, or
+  # any other file under tests/, counts as app code.
+  test_paths:
+    - "tests/**/*.test.ts"
+  fixture_paths:            # data only: json, sql, csv, txt, png, jpg, heic
+    - "tests/**/fixtures/**"
+  docs_paths:               # prose only; app code never reads these files
+    - "**/*.md"
+  # Generated files are uncounted only when listed here and CI regenerates
+  # them and finds no difference.
+  generated_paths: []
+  lockfiles:
+    - "package-lock.json"
+

@@ -1,0 +1,5 @@
+const f = fetch;
+
+export async function send(url: string) {
+  return globalThis['fetch'](url);
+}

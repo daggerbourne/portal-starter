@@ -1,0 +1,13 @@
+name: copy
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    environment: neon
+    steps:
+      - run: node --version

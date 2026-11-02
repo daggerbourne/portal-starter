@@ -1,0 +1,7 @@
+export async function send(url: string) {
+  return (
+    fetch
+  )(
+    url
+  );
+}

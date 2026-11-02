@@ -1,0 +1,10 @@
+name: bad
+on: pull_request
+permissions:
+  contents: read
+jobs:
+  bad:
+    runs-on: ubuntu-latest
+    environment: { name: neon }
+    steps:
+      - run: node --version

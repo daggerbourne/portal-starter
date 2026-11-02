@@ -1,0 +1,79 @@
+name: ci
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+concurrency:
+  group: "ci-${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MODE: mock
+    services:
+      postgres:
+        image: "postgres:16"
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: app
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - "5432:5432"
+        options: "--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5"
+    steps:
+      - name: checkout
+        uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+        with:
+          fetch-depth: "0"
+          persist-credentials: false
+      - name: setup node
+        uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+        with:
+          node-version-file: .nvmrc
+      - name: plan
+        id: plan
+        run: node .github/ci/ci.ts
+        env:
+          EVENT_NAME: "${{ github.event_name }}"
+          EVENT_BEFORE: "${{ github.event.before }}"
+          PR_BASE: "${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA: "${{ github.sha }}"
+      - name: secret scan
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        run: bash .github/ci/secret-scan.sh
+      - name: npm cache
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: install
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        run: npm ci
+      - name: lint
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        run: npm run lint
+      - name: typecheck
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        run: npm run typecheck
+      - name: test
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        run: npm test
+        env:
+          DATABASE_URL: "postgres://postgres@localhost:5432/portal-starter"
+      - name: build
+        if: "success() && steps.plan.outputs.depth == 'full'"
+        run: npm run build
+      - name: migrate
+        if: "success() && steps.plan.outputs.depth == 'full' && steps.plan.outputs.run_migrate == 'true'"
+        run: npm run migrate
+        env:
+          DATABASE_URL: "postgres://postgres@localhost:5432/portal-starter"

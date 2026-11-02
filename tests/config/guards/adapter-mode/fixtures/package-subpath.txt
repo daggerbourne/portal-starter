@@ -1,0 +1,4 @@
+import slash from "axios/";
+import dist from "axios/dist/axios.js";
+
+export const clients = { slash, dist };

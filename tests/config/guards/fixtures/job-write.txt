@@ -1,0 +1,14 @@
+name: bad
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  bad:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - run: node --version

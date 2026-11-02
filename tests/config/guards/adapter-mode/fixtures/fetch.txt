@@ -1,0 +1,3 @@
+export async function send() {
+  return await fetch("https://example.test/hook");
+}

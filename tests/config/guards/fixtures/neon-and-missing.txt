@@ -1,0 +1,11 @@
+name: bad
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  bad:
+    runs-on: ubuntu-latest
+    environment: neon
+    steps:
+      - run: node --version

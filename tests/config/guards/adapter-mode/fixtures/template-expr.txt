@@ -1,0 +1,3 @@
+export async function send(url: string) {
+  return `${await fetch(url)}`;
+}

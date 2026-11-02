@@ -1,0 +1,6 @@
+import tls from "tls";
+import http2 from "http2";
+import nodeFetch from "node-fetch";
+import got from "got";
+
+export const clients = { tls, http2, nodeFetch, got };

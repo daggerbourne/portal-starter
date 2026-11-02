@@ -1,0 +1,10 @@
+name: bad
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  bad:
+    runs-on: ubuntu-latest
+    steps:
+      - run: node --version
