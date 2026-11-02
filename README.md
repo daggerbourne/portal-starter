@@ -6,6 +6,8 @@ Everything a new app normally spends its first release on is already here and te
 
 ## Start a new app
 
+The full guide, from template to launch, including how to write the product brief and how to prompt the crew, is [`program/walkthrough.md`](program/walkthrough.md). The short version:
+
 1. **Use this template** on GitHub to make a private repository, then rename everything in one command:
    ```bash
    npm ci
